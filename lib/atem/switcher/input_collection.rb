@@ -25,7 +25,7 @@ module ATEM
 
 					return input if input.name == index or input.short_name.downcase == index.downcase
 
-				end
+				end if index.is_a? String
 
 			end
 

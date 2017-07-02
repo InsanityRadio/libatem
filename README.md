@@ -19,3 +19,21 @@ switcher.inputs[1].program
 
 
 ```
+
+## Audio! 
+
+```
+
+# Just a warning: this generates quite a bit of traffic from the ATEM
+switcher.use_audio_levels = true
+
+switcher.inputs['Camera 1'].audio.level
+
+```
+
+# TODO:
+
+- Add more features/command support!
+- Smoke & unit test, improve stability
+- Audio
+- Create Gem

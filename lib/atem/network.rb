@@ -94,13 +94,7 @@ module ATEM
 			begin
 
 				begin
-					if next_packet
-						puts "GOING FROM next_packet DATA"
-						data = next_packet
-						next_packet = nil
-					else
-						data, _ = @socket.recvfrom(2048)
-					end
+					data, _ = @socket.recvfrom(2048)
 				rescue
 					p "ERR"
 					return []
@@ -117,18 +111,16 @@ module ATEM
 				# print "RX HEADER: "
 				# p [bitmask, size, uid, ack_id, package_id]
 
-				@ack_id = package_id			
-				# @package_id += 1 if (bitmask & (Packet::HELLO | Packet::ACK)) == 0
+				@ack_id = package_id
 
-				next_packet = data[size..-1] if size != data.length
-				packet = [ack_id, bitmask, package_id, data[ @@SIZE_OF_HEADER .. (size - @@SIZE_OF_HEADER - 1) ]]
+				packet = [ack_id, bitmask, package_id, data[ @@SIZE_OF_HEADER .. -1 ]]
 
 				packets += handle(packet)
 
-				raise Retry
+#				raise Retry
 
-			rescue Retry
-				retry if next_packet and next_packet.length >= @@SIZE_OF_HEADER
+#			rescue Retry
+#				retry if next_packet and next_packet.length >= @@SIZE_OF_HEADER
 			end
 
 			packets

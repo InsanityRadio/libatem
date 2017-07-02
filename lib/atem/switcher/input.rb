@@ -4,12 +4,21 @@ module ATEM
 
 		class Input
 
-			attr_reader :switcher, :id, :name, :short_name
+			attr_reader :switcher, :id, :name, :short_name, :quick_init
+			attr_accessor :type, :audio
 
-			def self.from packet, switcher
+			module Type
+				VIDEO = 0x01
+				AUDIO = 0x02
+				AUDIO_VIDEO = 0x03
+			end
+
+			def self.from packet, switcher, type
 
 				input = self.new switcher
 				input.init_from packet
+
+				input.type = type
 
 				input
 
@@ -24,12 +33,20 @@ module ATEM
 			def init_from packet 
 
 				@id, @name, @short_name, @supported, @ext_port_type, @port_type, @availability = 
-					packet.unpack("S>a20a4xCxCCxC")
+					packet.unpack("S>A20A4xCxCCxC")
+
+			end
+
+			def init id, name = nil, short_name = nil
+
+				@id = id
+				@name = name or "Input #{@id}"
+				@short_name = short_name or "#{@id.to_s.rjust(4, "0")}"
+				@quick_init = true
 
 			end
 
 			######
-
 
 			def preview
 				@switcher.preview @id
@@ -38,7 +55,6 @@ module ATEM
 			def program
 				@switcher.program @id
 			end
-
 
 		end
 
