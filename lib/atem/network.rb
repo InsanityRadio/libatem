@@ -52,10 +52,17 @@ module ATEM
 			bitmask = bitmask << 11
 			bitmask |= (payload.length + @@SIZE_OF_HEADER)
 			
-			packet = [bitmask, @uid, ack_id, 0, @package_id].pack("S>S>S>L>S>")
+			package_id = 0
+			if (bitmask & (Packet::HELLO | Packet::ACK)) != 0 and @ready and payload.length != 0
+				# p "SENDING PACKAGE"
+				@package_id += 1 
+				package_id = @package_id
+			end
+
+			packet = [bitmask, @uid, ack_id, 0, package_id].pack("S>S>S>L>S>")
 			packet += payload
 
-			#print "TX(#{packet.length}, #{@package_id})"; p packet.to_hex
+			# print "TX(#{packet.length}, #{@package_id}, #{ack_id})"; p packet.to_hex
 			@socket.send packet, 0, @ip, @port
 
 		end
@@ -64,10 +71,11 @@ module ATEM
 
 			raise "Invalid command" if cmd.bytes.length != 4
 
-			size = cmd + payload.length + 4
-			datagram = [size, 0, 0].pack("S>CC") + cmd + datagram
+			size = cmd.length + payload.length + 4
+			datagram = [size, 0, 0].pack("S>CC") + cmd + payload
 
-			self << [Packet::ACK_REQ, 0x0, datagram]
+			self << [Packet::ACK_REQ, @ack_id, datagram]
+			loop { self.receive } 
 
 		end
 
@@ -106,9 +114,11 @@ module ATEM
 				bitmask = bitmask >> 3
 				size &= 0x07FF
 
-				#print "RX HEADER: "
-				#p [bitmask, size, uid, ack_id, package_id]
-				@package_id += 1 if (bitmask & (Packet::HELLO | Packet::ACK)) == 0
+				# print "RX HEADER: "
+				# p [bitmask, size, uid, ack_id, package_id]
+
+				@ack_id = package_id			
+				# @package_id += 1 if (bitmask & (Packet::HELLO | Packet::ACK)) == 0
 
 				next_packet = data[size..-1] if size != data.length
 				packet = [ack_id, bitmask, package_id, data[ @@SIZE_OF_HEADER .. (size - @@SIZE_OF_HEADER - 1) ]]
@@ -146,7 +156,7 @@ module ATEM
 				@ready = false
 				self << [Packet::ACK, 0x0, '']
 
-			elsif (@ready or (!@ready and packet[3].length == 0)) and ((bitmask & Packet::ACK_REQ) == Packet::ACK_REQ)
+			elsif ((bitmask & Packet::ACK_REQ) == Packet::ACK_REQ) and (@ready or (!@ready and packet[3].length == 0))
 
 				self << [Packet::ACK, packet[2], '']
 				@ready = true

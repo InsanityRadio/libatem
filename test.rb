@@ -1,4 +1,9 @@
 require_relative './lib/atem'
 
 
-p ATEM.connect("10.32.0.199")
+switcher = ATEM.connect("10.32.0.199")
+
+p switcher.inputs
+p switcher.inputs[0]
+
+p switcher.inputs['Wide'].preview

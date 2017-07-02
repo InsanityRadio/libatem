@@ -1,5 +1,7 @@
 require_relative 'atem/network'
 require_relative 'atem/switcher'
+require_relative 'atem/switcher/input'
+require_relative 'atem/switcher/input_collection'
 
 module ATEM
 
