@@ -4,6 +4,8 @@ module ATEM
 
 		class InputCollection
 
+			include Enumerable
+
 			attr_reader :switcher
 
 			def initialize switcher
@@ -27,6 +29,10 @@ module ATEM
 
 				end if index.is_a? String
 
+			end
+
+			def each(&block)
+				@inputs.each(&block)
 			end
 
 		end

@@ -33,7 +33,7 @@ module ATEM
 			def init_from packet 
 
 				@id, @name, @short_name, @supported, @ext_port_type, @port_type, @availability = 
-					packet.unpack("S>A20A4xCxCCxC")
+					packet.unpack("S>Z20Z4xCxCCxC")
 
 			end
 

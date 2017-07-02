@@ -134,6 +134,17 @@ module ATEM
 
 		end
 
+		def reset_audio_peaks
+
+			@inputs.each do | id, input |
+				
+				puts "Resetting #{input.name}" if input.audio != nil
+				@airtower.send! "RAMP", [2, 0, input.audio.id, 1, 0, 0, 0].pack("CCS>CCCC") if input.audio != nil
+
+			end
+
+		end
+
 		def preview id
 			@airtower.send! "CPvI", [0, 0, id].pack("CCS>")
 		end
