@@ -75,7 +75,7 @@ module ATEM
 			datagram = [size, 0, 0].pack("S>CC") + cmd + payload
 
 			self << [Packet::ACK_REQ, @ack_id, datagram]
-			loop { self.receive } 
+			self.receive 
 
 		end
 
