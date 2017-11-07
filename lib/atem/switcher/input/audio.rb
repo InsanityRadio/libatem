@@ -38,7 +38,7 @@ module ATEM
 							1101 => ['AES/EBU', 'AES3'],
 							1201 => ['RCA', 'RCA_'],
 						}
-						@input.init @input.id, values[@input.id][0], values[@input.id][1]
+						@input.init @input.id, values[@input.id][0], values[@input.id][1] rescue nil
 
 					end
 
